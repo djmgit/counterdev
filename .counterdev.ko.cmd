@@ -1,1 +1,1 @@
-cmd_/home/deep/yt/hello_chardev/src/counterdev.ko := ld -r  -m elf_x86_64 -z noexecstack   --build-id=sha1  -T scripts/module.lds -o /home/deep/yt/hello_chardev/src/counterdev.ko /home/deep/yt/hello_chardev/src/counterdev.o /home/deep/yt/hello_chardev/src/counterdev.mod.o;  true
+cmd_/home/deep/counterdev/counterdev.ko := ld -r  -m elf_x86_64 -z noexecstack   --build-id=sha1  -T scripts/module.lds -o /home/deep/counterdev/counterdev.ko /home/deep/counterdev/counterdev.o /home/deep/counterdev/counterdev.mod.o;  true

@@ -1,1 +1,1 @@
-cmd_/home/deep/yt/hello_chardev/src/Module.symvers := sed 's/\.ko$$/\.o/' /home/deep/yt/hello_chardev/src/modules.order | scripts/mod/modpost -m -a  -o /home/deep/yt/hello_chardev/src/Module.symvers -e -i Module.symvers   -T -
+cmd_/home/deep/counterdev/Module.symvers := sed 's/\.ko$$/\.o/' /home/deep/counterdev/modules.order | scripts/mod/modpost -m -a  -o /home/deep/counterdev/Module.symvers -e -i Module.symvers   -T -

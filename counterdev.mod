@@ -1,2 +1,2 @@
-/home/deep/yt/hello_chardev/src/counterdev.o
+/home/deep/counterdev/counterdev.o
 

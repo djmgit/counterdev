@@ -1,9 +1,10 @@
 #include <linux/module.h>
-#include <linux/module.h>
 #include <linux/printk.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
+#include <linux/kobject.h>
+#include <linux/sysfs.h>
 
 #include <linux/atmioc.h>
 #include <linux/cdev.h>
@@ -32,6 +33,8 @@
 #define COUNTER_LEN 4
 #define COUNTED_LEN 21
 
+static struct kobject *sysfs_module;
+
 static uint64_t num_counter = 0;
 static uint64_t num_counted = 0;
 
@@ -41,6 +44,12 @@ static struct class *cls;
 
 static char counter_str[COUNTER_LEN + 1];
 static char counted_str[COUNTED_LEN + 1];
+
+// 0 - ADD
+// 1 - MUL
+// 2 - DIV
+
+static int op_type = 0;
 
 enum {
     CDEV_NOT_USED,
@@ -86,7 +95,20 @@ static const struct  file_operations proc_file_fops = {
 
 #endif
 
+static ssize_t op_type_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf) {
+    return sprintf(buf, "%d\n", op_type);
+}
+
+static ssize_t op_type_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count) {
+    sscanf(buf, "%d", &op_type);
+
+    return count;
+}
+
+static struct kobj_attribute op_type_attribute = __ATTR(op_type, 0660, op_type_show, op_type_store);
+
 static int __init counterdev_init(void) {
+    int error = 0;
     pr_info("Device driver registration initiated\n");
 
     #ifdef HAVE_PROC_OPS
@@ -126,6 +148,20 @@ static int __init counterdev_init(void) {
 
     pr_info("/proc/%s created\n", PROCFS_NAME);
 
+    // initialise sysfs file
+    sysfs_module = kobject_create_and_add("op_type", kernel_kobj);
+    if (!sysfs_module) {
+        return -ENOMEM;
+    }
+
+    error = sysfs_create_file(sysfs_module, &op_type_attribute.attr);
+
+    if (error) {
+        kobject_put(sysfs_module);
+        pr_info("Failed to create op_type variable file in /sys/kernel/op_type\n");
+        return error;
+    }
+
     return 0;
 }
 
@@ -138,8 +174,9 @@ static void __exit counterdev_exit(void) {
 
     proc_remove(stats_proc_file);
     pr_info("/proc/%s removed\n", PROCFS_NAME);
-}
 
+    kobject_put(sysfs_module);
+}
 
 static int device_open(struct inode *inode, struct file *file) {
     if (atomic_cmpxchg(&already_open, CDEV_NOT_USED, CDEV_EXCLUSIVE_OPEN)) {
@@ -174,7 +211,11 @@ static ssize_t device_write(struct file *filp, const char __user *buff, size_t l
     ret = kstrtoull(counter_str, 10, &delta);
     if (ret == 0) {
         pr_info("Parsed number successfully\n");
-        num_counter += delta;
+        if (op_type == 0) {
+            num_counter += delta;
+        } else {
+            num_counter *= delta;
+        }
         if (num_counter > 999) {
             pr_info("Counter exceeded 999, wrapping over\n");
             num_counter = num_counter % 1000;

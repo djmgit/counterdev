@@ -32,6 +32,10 @@ __used __section("__versions") = {
 	{ 0x6bc3fbc0, "__unregister_chrdev" },
 	{ 0x748154da, "class_destroy" },
 	{ 0xfdd66e81, "device_destroy" },
+	{ 0x4a165127, "kobject_put" },
+	{ 0xb293625b, "sysfs_create_file_ns" },
+	{ 0x6fabae87, "kobject_create_and_add" },
+	{ 0x23314621, "kernel_kobj" },
 	{ 0x3f605883, "proc_set_user" },
 	{ 0x4a3c27d2, "proc_create" },
 	{ 0xa94ce2a9, "device_create" },
@@ -45,6 +49,7 @@ __used __section("__versions") = {
 	{ 0x88db9f48, "__check_object_size" },
 	{ 0x6b10bee1, "_copy_to_user" },
 	{ 0x3c3ff9fd, "sprintf" },
+	{ 0xbcab6ee6, "sscanf" },
 	{ 0x92997ed8, "_printk" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0xbdfb6dbb, "__fentry__" },
@@ -53,4 +58,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "A6FCF6C931AA6DB55D7DFD8");
+MODULE_INFO(srcversion, "B8603DC0C79CA4A6FFF565F");

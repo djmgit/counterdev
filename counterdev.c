@@ -21,6 +21,8 @@
 
 #include <asm/errno.h>
 
+#include "counterdev.h"
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
 #define HAVE_PROC_OPS
 #endif
@@ -67,12 +69,14 @@ static ssize_t device_write(struct file *, const char __user *, size_t, loff_t *
 static ssize_t procfile_read(struct file *, char __user *, size_t, loff_t *);
 static int procfs_open(struct inode *, struct file *);
 static int procfs_close(struct inode *, struct file *);
+static long ioctl_reset_counter(struct file *, unsigned int, unsigned long);
 
 static struct file_operations counterdev_fops = {
     .read = device_read,
     .write = device_write,
     .open = device_open,
-    .release = device_release
+    .release = device_release,
+    .unlocked_ioctl = ioctl_reset_counter
 };
 
 #ifdef HAVE_PROC_OPS
@@ -149,7 +153,7 @@ static int __init counterdev_init(void) {
     pr_info("/proc/%s created\n", PROCFS_NAME);
 
     // initialise sysfs file
-    sysfs_module = kobject_create_and_add("op_type", kernel_kobj);
+    sysfs_module = kobject_create_and_add("counterdev", kernel_kobj);
     if (!sysfs_module) {
         return -ENOMEM;
     }
@@ -280,6 +284,27 @@ static int procfs_close(struct inode *inode, struct file *file) {
     return 0;
 }
 
+static long ioctl_reset_counter(struct file *file, unsigned int cmd, unsigned long arg) {
+
+    int retval = 0;
+    int r = 0;
+
+    switch (cmd) {
+        case IOCTL_VALSET:
+            r = copy_from_user(&num_counter, (int __user *)arg, sizeof(uint64_t));
+            if (r) {
+                pr_info("ioctl failed with value: %d\n", r);
+                retval = -EFAULT;
+            } else {
+                pr_info("ioctl executed with value: %d, counter reset with value: %lld\n", r, num_counter);
+            }
+            break;
+        default:
+            retval = -ENOTTY;
+    }
+
+    return retval;
+}
 
 
 module_init(counterdev_init);

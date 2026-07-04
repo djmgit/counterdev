@@ -940,6 +940,7 @@ deps_/home/deep/counterdev/counterdev.o := \
   include/generated/uapi/linux/version.h \
   include/linux/proc_fs.h \
     $(wildcard include/config/PROC_PID_ARCH_STATUS) \
+  /home/deep/counterdev/counterdev.h \
 
 /home/deep/counterdev/counterdev.o: $(deps_/home/deep/counterdev/counterdev.o)
 
